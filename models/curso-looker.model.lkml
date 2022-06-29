@@ -2,15 +2,24 @@ connection: "bmind_analytics_n_viz"
 
 include: "/views/**/*.view" # include all the views
 
-datagroup: curso_looker_default_datagroup {
-  # sql_trigger: SELECT MAX(id) FROM etl_log;;
-  max_cache_age: "1 hour"
+
+######## Datagroups ########
+datagroup: ga_sessions_datagroup {
+  sql_trigger:  SELECT MAX(SUBSTR(table_id,-8)) AS date FROM `bigquery-public-data.google_analytics_sample.__TABLES__`;;
+  max_cache_age: "24 hour"
 }
 
-persist_with: curso_looker_default_datagroup
+datagroup: ecommerce_datagroup {
+  sql_trigger:  SELECT TIMESTAMP_MILLIS(MAX(last_modified_time)) last_modified_time FROM `bigquery-public-data.thelook_ecommerce.__TABLES__`;;
+  max_cache_age: "24 hour"
+}
 
+
+######## Google Analytics Sessions Sample ########
 explore: ga_sessions_sample {
-  label: "GA Sessions"
+  label: "(1) GA Sessions"
+
+  persist_with: ga_sessions_datagroup
 
   always_filter: {
     filters: [ga_sessions_sample.data_date: "30 days"]
@@ -94,3 +103,6 @@ explore: ga_sessions_sample {
     relationship: one_to_many
   }
 }
+
+
+######## eCommerce ########
