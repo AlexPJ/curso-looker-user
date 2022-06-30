@@ -816,7 +816,7 @@ view: ga_sessions_sample__hits {
       WHEN ${e_commerce_action__action_type} = 3 THEN '(4) Add to Cart'
       WHEN ${e_commerce_action__action_type} = 2 THEN '(3) View Product'
       WHEN ${e_commerce_action__action_type} = 1 THEN '(2) Browse'
-      WHEN ${e_commerce_action__action_type} = 0 THEN '(1) Land'
+      ELSE '(1) Land'
       END
        ;;
   }
