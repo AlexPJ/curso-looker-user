@@ -1,6 +1,6 @@
 view: ga_sessions_sample {
   label: "GA Sessions"
-  sql_table_name: `boreal-coyote-290510.google_analytics_sample.ga_sessions_*`
+  sql_table_name: `bigquery-public-data.google_analytics_sample.ga_sessions_*`
     ;;
 
   dimension_group: data {
