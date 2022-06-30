@@ -106,3 +106,136 @@ explore: ga_sessions_sample {
 
 
 ######## eCommerce ########
+explore: order_items {
+  label: "(2) eCommerce: Orders, Items and Users"
+  view_name: order_items
+
+  persist_with: ecommerce_datagroup
+
+  join: inventory_items {
+    view_label: "Inventory Items"
+    #Left Join only brings in items that have been sold as order_item
+    type: full_outer
+    relationship: one_to_one
+    sql_on: ${inventory_items.id} = ${order_items.inventory_item_id} ;;
+  }
+
+  join: users {
+    view_label: "Users"
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${order_items.user_id} = ${users.id} ;;
+  }
+
+  join: products {
+    view_label: "Products"
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${products.id} = ${inventory_items.product_id} ;;
+  }
+
+  join: distribution_centers {
+    view_label: "Distribution Center"
+    type: left_outer
+    sql_on: ${distribution_centers.id} = ${inventory_items.product_distribution_center_id} ;;
+    relationship: many_to_one
+  }
+}
+
+
+
+#########  Event Data Explores #########
+
+explore: events {
+  label: "(3) eCommerce: Web Event Data"
+
+  persist_with: ecommerce_datagroup
+
+  join: sessions {
+    view_label: "Sessions"
+    type: left_outer
+    sql_on: ${events.session_id} =  ${sessions.session_id} ;;
+    relationship: many_to_one
+  }
+
+  join: session_landing_page {
+    view_label: "Session Landing Page"
+    from: events
+    type: left_outer
+    sql_on: ${sessions.landing_event_id} = ${session_landing_page.event_id} ;;
+    fields: [simple_page_info*]
+    relationship: one_to_one
+  }
+
+  join: session_bounce_page {
+    view_label: "Session Bounce Page"
+    from: events
+    type: left_outer
+    sql_on: ${sessions.bounce_event_id} = ${session_bounce_page.event_id} ;;
+    fields: [simple_page_info*]
+    relationship: many_to_one
+  }
+
+  join: product_viewed {
+    view_label: "Product Viewed"
+    from: products
+    type: left_outer
+    sql_on: ${events.viewed_product_id} = ${product_viewed.id} ;;
+    relationship: many_to_one
+  }
+
+  join: users {
+    view_label: "Users"
+    type: left_outer
+    sql_on: ${sessions.session_user_id} = ${users.id} ;;
+    relationship: many_to_one
+  }
+
+}
+
+explore: sessions {
+  label: "(4) eCommerce: Web Session Data"
+
+  persist_with: ecommerce_datagroup
+
+  join: events {
+    view_label: "Events"
+    type: left_outer
+    sql_on: ${sessions.session_id} = ${events.session_id} ;;
+    relationship: one_to_many
+  }
+
+  join: product_viewed {
+    view_label: "Product Viewed"
+    from: products
+    type: left_outer
+    sql_on: ${events.viewed_product_id} = ${product_viewed.id} ;;
+    relationship: many_to_one
+  }
+
+  join: session_landing_page {
+    view_label: "Session Landing Page"
+    from: events
+    type: left_outer
+    sql_on: ${sessions.landing_event_id} = ${session_landing_page.event_id} ;;
+    fields: [session_landing_page.simple_page_info*]
+    relationship: one_to_one
+  }
+
+  join: session_bounce_page {
+    view_label: "Session Bounce Page"
+    from: events
+    type: left_outer
+    sql_on: ${sessions.bounce_event_id} = ${session_bounce_page.event_id} ;;
+    fields: [session_bounce_page.simple_page_info*]
+    relationship: one_to_one
+  }
+
+  join: users {
+    view_label: "Users"
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${users.id} = ${sessions.session_user_id} ;;
+  }
+
+}

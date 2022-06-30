@@ -48,17 +48,6 @@ view: order_items {
     sql: ${order_id} ;;
   }
 
-  measure: first_purchase_count {
-    view_label: "Orders"
-    type: count_distinct
-    sql: ${order_id} ;;
-    filters: {
-      field: order_facts.is_first_purchase
-      value: "Yes"
-    }
-    drill_fields: [user_id, users.name, users.email, order_id, created_date, users.traffic_source]
-  }
-
   dimension: order_id_no_actions {
     label: "Order ID No Actions"
     type: number
@@ -376,104 +365,6 @@ view: order_items {
     sql: 1.0 * ${returned_count} / nullif(${count},0) ;;
   }
 
-
-########## Repeat Purchase Facts ##########
-
-  dimension: days_until_next_order {
-    label: "Days Until Next Order"
-    type: number
-    view_label: "Repeat Purchase Facts"
-    sql: TIMESTAMP_DIFF(${created_raw},${repeat_purchase_facts.next_order_raw}, DAY) ;;
-  }
-
-  dimension: repeat_orders_within_30d {
-    label: "Repeat Orders within 30 Days"
-    type: yesno
-    view_label: "Repeat Purchase Facts"
-    sql: ${days_until_next_order} <= 30 ;;
-  }
-
-  dimension: repeat_orders_within_15d{
-    label: "Repeat Orders within 15 Days"
-    type: yesno
-    sql:  ${days_until_next_order} <= 15;;
-  }
-
-  measure: count_with_repeat_purchase_within_30d {
-    label: "Count with Repeat Purchase within 30 Days"
-    type: count_distinct
-    sql: ${id} ;;
-    view_label: "Repeat Purchase Facts"
-
-    filters: {
-      field: repeat_orders_within_30d
-      value: "Yes"
-    }
-  }
-
-  measure: 30_day_repeat_purchase_rate {
-    description: "The percentage of customers who purchase again within 30 days"
-    view_label: "Repeat Purchase Facts"
-    type: number
-    value_format_name: percent_1
-    sql: 1.0 * ${count_with_repeat_purchase_within_30d} / (CASE WHEN ${count} = 0 THEN NULL ELSE ${count} END) ;;
-    drill_fields: [products.brand, order_count, count_with_repeat_purchase_within_30d]
-  }
-
-########## Dynamic Sales Cohort App ##########
-
-#   filter: cohort_by {
-#     type: string
-#     hidden: yes
-#     suggestions: ["Week", "Month", "Quarter", "Year"]
-#   }
-#
-#   filter: metric {
-#     type: string
-#     hidden: yes
-#     suggestions: ["Order Count", "Gross Margin", "Total Sales", "Unique Users"]
-#   }
-#
-#   dimension_group: first_order_period {
-#     type: time
-#     timeframes: [date]
-#     hidden: yes
-#     sql: CAST(DATE_TRUNC({% parameter cohort_by %}, ${user_order_facts.first_order_date}) AS TIMESTAMP)
-#       ;;
-#   }
-#
-#   dimension: periods_as_customer {
-#     type: number
-#     hidden: yes
-#     sql: TIMESTAMP_DIFF(${user_order_facts.first_order_date}, ${user_order_facts.latest_order_date}, {% parameter cohort_by %})
-#       ;;
-#   }
-#
-#   measure: cohort_values_0 {
-#     type: count_distinct
-#     hidden: yes
-#     sql: CASE WHEN {% parameter metric %} = 'Order Count' THEN ${id}
-#         WHEN {% parameter metric %} = 'Unique Users' THEN ${users.id}
-#         ELSE null
-#       END
-#        ;;
-#   }
-#
-#   measure: cohort_values_1 {
-#     type: sum
-#     hidden: yes
-#     sql: CASE WHEN {% parameter metric %} = 'Gross Margin' THEN ${gross_margin}
-#         WHEN {% parameter metric %} = 'Total Sales' THEN ${sale_price}
-#         ELSE 0
-#       END
-#        ;;
-#   }
-#
-#   measure: values {
-#     type: number
-#     hidden: yes
-#     sql: ${cohort_values_0} + ${cohort_values_1} ;;
-#   }
 
 ########## Sets ##########
 
