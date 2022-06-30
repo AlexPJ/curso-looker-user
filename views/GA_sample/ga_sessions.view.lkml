@@ -811,11 +811,12 @@ view: ga_sessions_sample__hits {
 
   dimension: funnel_step {
     sql: CASE
-      WHEN ${e_commerce_action__action_type} = 5 THEN '(5) Purchase'
+      WHEN ${e_commerce_action__action_type} = 6 THEN '(6) Purchase'
+      WHEN ${e_commerce_action__action_type} = 5 THEN '(5) Check Out'
       WHEN ${e_commerce_action__action_type} = 3 THEN '(4) Add to Cart'
       WHEN ${e_commerce_action__action_type} = 2 THEN '(3) View Product'
       WHEN ${e_commerce_action__action_type} = 1 THEN '(2) Browse'
-      ELSE '(1) Land'
+      WHEN ${e_commerce_action__action_type} = 0 THEN '(1) Land'
       END
        ;;
   }
